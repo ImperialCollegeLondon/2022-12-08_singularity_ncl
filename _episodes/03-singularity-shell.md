@@ -45,7 +45,7 @@ Note that the use of `singularity exec` has overriden any run script set within 
 > > {: .language-bash}
 > > 
 > > ~~~
-> > Fri Jun 26 15:17:44 BST 2020
+> > Tue Jan 18 11:58:53 GMT 2022
 > > ~~~
 > > {: .output}
 > {: .solution}

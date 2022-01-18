@@ -26,9 +26,9 @@ Similarly to Docker and many other modern software tools, Singularity follows th
 There are various approaches to building Singularity images. We highlight two different approaches here and focus on one of them:
 
  - _Building within a sandbox:_ You can build a container interactively within a sandbox environment. This means you get a shell within the container environment and install and configure packages and code as you wish before exiting the sandbox and converting it into a container image.
-- _Building from a [Singularity Definition File](https://sylabs.io/guides/3.5/user-guide/build_a_container.html#creating-writable-sandbox-directories)_: This is Singularity's equivalent to building a Docker container from a `Dockerfile` and we'll discuss this approach in this section.
+- _Building from a [Singularity Definition File](https://apptainer.org/user-docs/3.7/build_a_container.html#creating-writable-sandbox-directories)_: This is Singularity's equivalent to building a Docker container from a `Dockerfile` and we'll discuss this approach in this section.
 
-You can take a look at Singularity's "[Build a Container](https://sylabs.io/guides/3.5/user-guide/build_a_container.html)" documentation for more details on different approaches to building containers.
+You can take a look at Singularity's "[Build a Container](https://apptainer.org/user-docs/3.7/build_a_container.html)" documentation for more details on different approaches to building containers.
 
 > ## Why look at Singularity Definition Files?
 > Why do you think we might be looking at the _definition file approach_ here rather than the _sandbox approach_?
@@ -54,14 +54,14 @@ Bootstrap: docker
 From: ubuntu:20.04
 
 %post
-    apt-get -y update && apt-get install -y python
+    apt-get -y update && apt-get install -y python3
 
 %runscript
-    python -c 'print("Hello World! Hello from our custom Singularity image!")'
+    python3 -c 'print("Hello World! Hello from Python %s.%s.%s in our custom Singularity image!" % sys.version_info[:3])'
 ~~~
 {: .language-bash}
 
-A definition file has a number of optional sections, specified using the `%` prefix, that are used to define or undertake different configuration during different stages of the image build process. You can find full details in Singularity's [Definition Files documentation](https://sylabs.io/guides/3.5/user-guide/definition_files.html). In our very simple example here, we only use the `%post` and `%runscript` sections.
+A definition file has a number of optional sections, specified using the `%` prefix, that are used to define or undertake different configuration during different stages of the image build process. You can find full details in Singularity's [Definition Files documentation](https://apptainer.org/user-docs/3.7/definition_files.html). In our very simple example here, we only use the `%post` and `%runscript` sections.
 
 Let's step through this definition file and look at the lines in more detail:
 
@@ -73,7 +73,7 @@ From: ubuntu:20.04
 
 These first two lines define where to _bootstrap_ our image from. Why can't we just put some application binaries into a blank image? Any applications or tools that we want to run will need to interact with standard system libraries and potentially a wide range of other libraries and tools. These need to be available within the image and we therefore need some sort of operating system as the basis for our image. The most straightforward way to achieve this is to start from an existing base image containing an operating system. In this case, we're going to start from a minimal Ubuntu 20.04 Linux Docker image. Note that we're using a Docker image as the basis for creating a Singularity image. This demonstrates the flexibility in being able to start from different types of images when creating a new Singularity image.
 
-The `Bootstrap: docker` line is similar to prefixing an image path with `docker://` when using, for example, the `singularity pull` command. A range of [different bootstrap options](https://sylabs.io/guides/3.5/user-guide/definition_files.html#preferred-bootstrap-agents) are supported. `From: ubuntu:20.04` says that we want to use the `ubuntu` image with the tag `20.04` from Docker Hub.
+The `Bootstrap: docker` line is similar to prefixing an image path with `docker://` when using, for example, the `singularity pull` command. A range of [different bootstrap options](https://apptainer.org/user-docs/3.7/definition_files.html#preferred-bootstrap-agents) are supported. `From: ubuntu:20.04` says that we want to use the `ubuntu` image with the tag `20.04` from Docker Hub.
 
 Next we have the `%post` section of the definition file:
 
@@ -91,13 +91,13 @@ Finally we have the `%runscript` section:
 
 ~~~
 %runscript
-    python3 -c 'print("Hello World! Hello from our custom Singularity image!")'
+    python3 -c 'print("Hello World! Hello from Python %s.%s.%s in our custom Singularity image!" % sys.version_info[:3])'
 ~~~
 {: .language-bash}
 
-This section is used to define a script that should be run when a container is started based on this image using the `singularity run` command. In this simple example we use `python3` to print out some text to the console.
+This section is used to define a script that should be run when a container is started based on this image using the `singularity run` command. In this simple example we use `python3` to print out some text, including the currently running version of Python, to the console.
 
-We can now save the contents of the simple defintion file shown above to a file and build an image based on it. In the case of this example, the definition file has been named `my_test_image.def`. (Note that the instructions here assume you've bound the image output directory you created to the `/home/singularity` directory in your Docker Singularity container, as explained in the "[_Getting started with the Docker Singularity image_](#getting-started-with-the-docker-singularity-image)" section above.):
+We can now save the contents of the simple defintion file shown above to a file and build an image based on it. In the case of this example, the definition file has been named `my_test_image.def`. (Note that the instructions here assume you've bound the image output directory you created to the `/home/singularity` directory in your Docker Singularity container, as explained in the "[_Getting started with the Docker Singularity image_]({{ site.baseurl }}{% link _episodes/06-singularity-images-prep.md %}#getting-started-with-the-docker-singularity-image)" section above.):
 
 ~~~
 $ singularity build /home/singularity/my_test_image.sif /home/singularity/my_test_image.def
@@ -107,7 +107,7 @@ $ singularity build /home/singularity/my_test_image.sif /home/singularity/my_tes
 Recall from the details at the start of this section that if you are running your command from the host system command line, running an instance of a Docker container for each run of the command, your command will look something like this:
 
 ~~~
-$ docker run --privileged --rm -v ${PWD}:/home/singularity quay.io/singularity/singularity:v3.5.3-slim build /home/singularity/my_test_image.sif /home/singularity/my_test_image.def
+$ docker run --privileged --rm --mount type=bind,source=${PWD},target=/home/singularity quay.io/singularity/singularity:v3.7.3-slim build /home/singularity/my_test_image.sif /home/singularity/my_test_image.def
 ~~~
 {: .language-bash}
 
@@ -116,38 +116,32 @@ The above command requests the building of an image based on the `my_test_image.
 ~~~
 INFO:    Starting build...
 Getting image source signatures
-Copying blob d51af753c3d3 skipped: already exists
-Copying blob fc878cd0a91c skipped: already exists
-Copying blob 6154df8ff988 skipped: already exists
-Copying blob fee5db0ff82f skipped: already exists
-Copying config 95c3f3755f done
+Copying blob sha256:ea362f368469f909a95f9a6e54ebe0121ce0a8e3c30583dd9c5fb35b14544dec
+Copying config sha256:15162bcf92407ebb6035c0b78021103ea75860975b1c871f4437439393d9907e
 Writing manifest to image destination
 Storing signatures
-2020/04/29 13:36:35  info unpack layer: sha256:d51af753c3d3a984351448ec0f85ddafc580680fd6dfce9f4b09fdb367ee1e3e
-2020/04/29 13:36:36  info unpack layer: sha256:fc878cd0a91c7bece56f668b2c79a19d94dd5471dae41fe5a7e14b4ae65251f6
-2020/04/29 13:36:36  info unpack layer: sha256:6154df8ff9882934dc5bf265b8b85a3aeadba06387447ffa440f7af7f32b0e1d
-2020/04/29 13:36:36  info unpack layer: sha256:fee5db0ff82f7aa5ace63497df4802bbadf8f2779ed3e1858605b791dc449425
+2022/01/18 14:07:55  info unpack layer: sha256:ea362f368469f909a95f9a6e54ebe0121ce0a8e3c30583dd9c5fb35b14544dec
 INFO:    Running post scriptlet
 + apt-get -y update
 Get:1 http://archive.ubuntu.com/ubuntu focal InRelease [265 kB]
 ...
   [Package update output truncated]
 ...
-Fetched 13.4 MB in 2s (5575 kB/s)                            
-Reading package lists... Done
+Fetched 20.5 MB in 3s (8128 kB/s)
+Reading package lists... 
 + apt-get install -y python3
-Reading package lists... Done
+Reading package lists... 
 ...
   [Package install output truncated]
-...Processing triggers for libc-bin (2.31-0ubuntu9) ...
+...Processing triggers for libc-bin (2.31-0ubuntu9.2) ...
 INFO:    Adding runscript
 INFO:    Creating SIF file...
-INFO:    Build complete: my_test_image.sif
+INFO:    Build complete: /home/singularity/my_test_image.sif
 $ 
 ~~~
 {: .output}
 
-You should now have a `my_test_image.sif` file in the current directory. Note that in the above output, where it says `INFO:  Starting build...` there is a series of `skipped: already exists` messages for the `Copying blob` lines. This is because the Docker image slices for the Ubuntu 20.04 image have previously been downloaded and are cached on the system where this example is being run. On your system, if the image is not already cached, you will see the slices being downloaded from Docker Hub when these lines of output appear.
+You should now have a `my_test_image.sif` file in the current directory. Note that in the above output, where it says `INFO:  Starting build...` you may see a series of `skipped: already exists` messages for the `Copying blob` lines if the Docker image slices for the Ubuntu 20.04 image have previously been downloaded and are cached on the system where you're running this example. On your system, if the image is not already cached, you will see the slices being downloaded from Docker Hub when these lines of output appear.
 
 > ## Permissions of the created image file
 >
