@@ -41,7 +41,7 @@ This means that the host system can effectively ensure that you cannot access/mo
 
 ## Files and directories within a Singularity container
 
-Singularity also _binds_ some _directories_ from the host system where you are running the `singularity` command into the container that you're starting. Note that this bind process is not copying files into the running container, it is making an existing directory on the host system visible and accessible within the container environment. If you write files to this directory within the running container, when the container shuts down, those changes will persist in the relevant location on the host system.
+Singularity also _binds_ some _directories_ from the host system where you are running the `singularity` command into the container that you're starting. Note that this bind process is not copying files into the running container, it is making an existing directory on the host system visible and accessible within the Singularity container environment. If you write files to this directory within the running container, when the container shuts down, those changes will persist in the relevant location on the host system.
 
 There is a default configuration of which files and directories are bound into the container but ultimate control of how things are set up on the system where you are running Singularity is determined by the system administrator. As a result, this section provides an overview but you may find that things are a little different on the system that you're running on.
 
@@ -81,7 +81,7 @@ Host system:                                                      Singularity co
 > >
 > > **A1:** Use the `ls -l` command to see a detailed file listing including file ownership and permission details. You should see that most of the files in the `/` directory are owned by `root`, as you'd probably expect on any Linux system. If you look at the files in your home directory, they should be owned by you.
 > >
-> > **A Ex1:** We've already seen from the previous answer that the files in `/` are owned by `root` so we wouldn't expect to be able to edit them if we're not the root user. However, if you tried to edit `/rawr.sh` you probably saw that the file was read only and, if you tried for example to delete the file you would have seen an error similar to the following: `cannot remove '/rawr.sh': Read-only file system`. This tells us something else about the filesystem. It's not just that we don't have permission to delete the file, the filesystem itself is read-only so even the `root` user wouldn't be able to edit/delete this file. We'll look at this in more detail shortly.
+> > **A Ex1:** We've already seen from the previous answer that the files in `/` are owned by `root` so we wouldn't expect to be able to edit them if we're not the root user. However, if you tried to edit `/rawr.sh` you probably saw that the file was read only and, if you tried for example to delete the file you would have seen an error similar to the following: `cannot remove '/rawr.sh': Read-only file system`.
 > > 
 > > **A Ex2:** Within your home directory, you _should_ be able to successfully create a file. Since you're seeing your home directory on the host system which has been bound into the container, when you exit and the container shuts down, the file that you created within the container should still be present when you look at your home directory on the host system.
 > {: .solution}
@@ -91,8 +91,8 @@ Host system:                                                      Singularity co
 
 You will sometimes need to bind additional host system directories into a container you are using over and above those bound by default. For example:
 
-- There may be a shared dataset in a shard location that you need access to in the container
-- You may require executables and software libraries in the container
+- There may be a shared dataset in a shared location that you need access to in the container
+- You may require access, within the running container, to additional executables and software libraries stored on the host system
 
 The `-B` option to the `singularity` command is used to specify additonal binds. For example, to bind the `/work/z19/shared` directory into a container you could use (note this directory is unlikely to exist on the host system you are using so you'll need to test this using a different directory):
 
@@ -130,7 +130,7 @@ cdo-archer2.sif     edge768x768.pgm  image192x128.pgm	   jsindt			paraver		    p
 
 You can also specify multiple binds to `-B` by separating them by commas (`,`).
 
-You can also copy data into a container image at build time if there is some static data required in the image. We cover this later in the section on building Singularity containers.
+An alternative option to binding a directory from the host system into a container is to copy required data into a container image at build time. This is useful when there is some static data required in the image. We cover this later in the section on [building Singularity images]({{ site.baseurl }}{% link _episodes/07-singularity-images-building.md %}).
 
 ## References
 

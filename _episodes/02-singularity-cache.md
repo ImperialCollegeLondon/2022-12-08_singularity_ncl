@@ -26,7 +26,7 @@ $ singularity pull hello-world.sif shub://vsoch/hello-world
 {: .language-bash}
 
 ~~~
-INFO:    Use image from cache
+INFO:    Use cached image
 ~~~
 {: .output}
 
@@ -40,8 +40,8 @@ $ singularity cache list
 {: .language-bash}
 
 ~~~
-There are 1 container file(s) using 62.65 MB and 0 oci blob file(s) using 0.00 kB of space
-Total space used: 62.65 MB
+There are 1 container file(s) using 59.75 MiB and 0 oci blob file(s) using 0.00 KiB of space
+Total space used: 59.75 MiB
 ~~~
 {: .output}
 
@@ -54,10 +54,10 @@ $ singularity cache list -v
 
 ~~~
 NAME                     DATE CREATED           SIZE             TYPE
-hello-world_latest.sif   2020-04-03 13:20:44    62.65 MB         shub
+3bac21df631874e3cbb3f0   2022-01-12 13:20:44    59.75 MB         shub
 
-There are 1 container file(s) using 62.65 MB and 0 oci blob file(s) using 0.00 kB of space
-Total space used: 62.65 MB
+There are 1 container file(s) using 59.75 MiB and 0 oci blob file(s) using 0.00 KiB of space
+Total space used: 59.75 MiB
 ~~~
 {: .output}
 
