@@ -57,7 +57,7 @@ From: ubuntu:20.04
     apt-get -y update && apt-get install -y python3
 
 %runscript
-    python3 -c 'print("Hello World! Hello from Python %s.%s.%s in our custom Singularity image!" % sys.version_info[:3])'
+    python3 -c 'import sys; print("Hello World! Hello from Python %s.%s.%s in our custom Singularity image!" % sys.version_info[:3])'
 ~~~
 {: .language-bash}
 
@@ -91,7 +91,7 @@ Finally we have the `%runscript` section:
 
 ~~~
 %runscript
-    python3 -c 'print("Hello World! Hello from Python %s.%s.%s in our custom Singularity image!" % sys.version_info[:3])'
+    python3 -c 'import sys; print("Hello World! Hello from Python %s.%s.%s in our custom Singularity image!" % sys.version_info[:3])'
 ~~~
 {: .language-bash}
 
@@ -111,7 +111,7 @@ $ docker run --privileged --rm --mount type=bind,source=${PWD},target=/home/sing
 ~~~
 {: .language-bash}
 
-The above command requests the building of an image based on the `my_test_image.def` file with the resulting image saved to the `my_test_image.sif` file. Note that you will need to prefix the command with `sudo` if you're running a locally installed version of Singularity and not running via Docker because it is necessary to have administrative privileges to build the image. You should see output similar to the following:
+The above command requests the building of an image based on the `my_test_image.def` definition file with the resulting image saved to the `my_test_image.sif` file. Note that you will need to prefix the command with `sudo` if you're running a locally installed version of Singularity and not running via Docker because it is necessary to have administrative privileges to build the image. You should see output similar to the following:
 
 ~~~
 INFO:    Starting build...
@@ -151,13 +151,17 @@ You should now have a `my_test_image.sif` file in the current directory. Note th
 > 
 {: .callout}
 
+It is recommended that you move the created `.sif` file to a platform with an installation of Singularity, rather than attempting to run the image using the Docker container. However, for testing purposes, and to save you having to copy the image to a remote platform, if you do wish to try using Singularity within the Singularity Docker container to run your test image, see the notes below on "_Using `singularity run` from within the Docker container_".
+
 > ## Cluster platform configuration for running Singularity containers
 >
-> _**Note to instructors:** Add details into this box of any custom configuration that needs to be done on the cluster platform or other remote system that you're providing access to for the purpose of undertaking this course. If `singularity` does not require any custom configuration by the user on the host platform, you can remove this box._
+> For testing purposes, we can run our image that we've created on ARCHER2 by copying the image to the platform and running it interactively at the terminal.
+>
+> However, for a real job, this is not an option and we would be required to submit our job to the job scheduler on ARCHER2 to have it run on the system's compute nodes.
+>
+> Doing this requires a number of configuration parameters to be specified. The parameters that need to be set and the values that they need to be set to are specific to the cluster you're running on. In the next section, where we look at running parallel jobs, we'll provide platform-specfic parameters for ARCHER2. However, if you're running on your own institutional cluster or another HPC platform that you have access to, it is likely that you'll need to liaise with the system administrators or look at documentation to identify the parameters that need to be passed to Singularity.
 > 
 {: .callout}
-
-It is recommended that you move the created `.sif` file to a platform with an installation of Singularity, rather than attempting to run the image using the Docker container. However, if you do wish to try using the Docker container, see the notes below on "_Using singularity run from within the Docker container_" for further information.
 
 If you have access to a remote platform with Singularity installed on it, you should now move your created `.sif` image file to this platform. You could, for example, do this using the command line secure copy command `scp`.
 
@@ -184,7 +188,7 @@ $ singularity run my_test_image.sif
 If everything worked successfully, you should see the message printed by Python:
 
 ~~~
-Hello World! Hello from our custom Singularity image!
+Hello World! Hello from Python 3.8.10 in our custom Singularity image!
 ~~~
 {: .output}
 
@@ -192,7 +196,18 @@ Hello World! Hello from our custom Singularity image!
 >
 > It is strongly recommended that you don't use the Docker container for running Singularity images, only for creating them, since the Singularity command runs within the container as the root user.
 > 
-> However, for the purposes of this simple example, and potentially for testing/debugging purposes it is useful to know how to run a Singularity container within the Docker Singularity container. You may recall from the [Running a container from the image](/06-singularity-images-prep/index.html#running-a-container-from-the-image) section in the previous episode that we used the `--contain` switch with the `singularity` command. If you don't use this switch, it is likely that you will get an error relating to `/etc/localtime` similar to the following:
+> However, for the purposes of this simple example, and potentially for testing/debugging purposes it is useful to know how to run a Singularity container within the Docker Singularity container. If you're using the same version (or a newer version) of the Docker Singularity image to the one being used in this material (_3.7.3-slim_), you should be able to run the container as we've done in previous examples in this section, telling it to use the `singularity run` command and passing the name of the image file. _Note that the name of the image file must be passed giving the path it will appear at **inside** the container._
+> 
+> ~~~
+> docker run --privileged --rm --mount type=bind,source=${PWD},target=/home/singularity quay.io/singularity/singularity:v3.7.3-slim run /home/singularity/my_test_image.sif
+> ~~~
+> {: .output}
+> 
+> ### Using older versions of the Singularity Docker container
+>
+> _**NOTE:** The remainder of the content in this callout only applies if you're running an older version of the Docker Singularity container and experience issues..._
+> 
+> In the event that you're using an older version of the Singularity Docker container, you may encounter an error similar to the following:
 >
 > ~~~
 > WARNING: skipping mount of /etc/localtime: no such file or directory
@@ -200,7 +215,7 @@ Hello World! Hello from our custom Singularity image!
 > ~~~
 > {: .output}
 > 
-> This occurs because the `/etc/localtime` file that provides timezone configuration is not present within the Docker container. If you want to use the Docker container to test that your newly created image runs, you can use the `--contain` switch, or you can open a shell in the Docker container and add a timezone configuration as described in the [Alpine Linux documentation](https://wiki.alpinelinux.org/wiki/Setting_the_timezone):
+> This occurs because the `/etc/localtime` file that provides timezone configuration is not present within the Singularity Docker container. If you want to use the Docker container to test that your newly created image runs, you can add the `--contain` switch to `singularity run`, or you can open a shell in the Docker container and add a timezone configuration as described in the [Alpine Linux documentation](https://wiki.alpinelinux.org/wiki/Setting_the_timezone):
 >
 > ~~~
 > $ apk add tzdata
@@ -224,13 +239,11 @@ Here we've looked at a very simple example of how to create an image. At this st
  - `%labels`
  - `%help`
 
-The [`Sections` part of the definition file documentation](https://sylabs.io/guides/3.5/user-guide/definition_files.html#sections) details all the sections and provides an example definition file that makes use of all the sections.
+The [`Sections` part of the definition file documentation](https://apptainer.org/user-docs/3.7/definition_files.html#sections) details all the sections and provides an example definition file that makes use of all the sections.
 
 ### Additional Singularity features
 
-Singularity has a wide range of features. You can find full details in the [Singularity User Guide](https://sylabs.io/guides/3.5/user-guide/index.html) and we highlight a couple of key features here that may be of use/interest:
+Singularity has a wide range of features. You can find full details in the [Singularity User Guide](https://apptainer.org/user-docs/3.7/index.html) and we highlight a couple of key features here that may be of use/interest:
 
-**Remote Builder Capabilities:** If you have access to a platform with Singularity installed but you don't have root access to create containers, you may be able to use the [Remote Builder](https://cloud.sylabs.io/builder) functionality to offload the process of building an image to remote cloud resources. You'll need to register for a _cloud token_ via the link on the [Remote Builder](https://cloud.sylabs.io/builder) page.
-
-**Signing containers:** If you do want to share container image (`.sif`) files directly with colleagues or collaborators, how can the people you send an image to be sure that they have received the file without it being tampered with or suffering from corruption during transfer/storage? And how can you be sure that the same goes for any container image file you receive from others? Singularity supports signing containers. This allows a digital signature to be linked to an image file. This signature can be used to verify that an image file has been signed by the holder of a specific key and that the file is unchanged from when it was signed. You can find full details of how to use this functionality in the Singularity documentation on [Signing and Verifying Containers](https://sylabs.io/guides/3.0/user-guide/signNverify.html).
+**Signing containers:** If you do want to share container image (`.sif`) files directly with colleagues or collaborators, how can the people you send an image to be sure that they have received the file without it being tampered with or suffering from corruption during transfer/storage? And how can you be sure that the same goes for any container image file you receive from others? Singularity supports signing containers. This allows a digital signature to be linked to an image file. This signature can be used to verify that an image file has been signed by the holder of a specific key and that the file is unchanged from when it was signed. You can find full details of how to use this functionality in the Singularity documentation on [Signing and Verifying Containers](https://apptainer.org/user-docs/3.7/signNverify.html).
 
