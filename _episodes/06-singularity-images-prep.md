@@ -125,10 +125,10 @@ The [Singularity Docker image](https://quay.io/repository/singularity/singularit
 > >    As shown in the diagram above, you can do this. It is necessary to run `singularity shell <image file name>` within the Docker Singularity container. You would use a command similar to the following (assuming that `my_test_image.sif` is in the current directory where you run this command):
 > >     
 > >    ```
-> >    docker run --privileged -it --rm --mount type=bind,source=${PWD},target=/home/singularity quay.io/singularity/singularity:v3.7.3-slim shell --contain /home/singularity/my_test_image.sif
+> >    docker run --privileged -it --rm --mount type=bind,source=${PWD},target=/home/singularity quay.io/singularity/singularity:v3.7.3-slim shell /home/singularity/my_test_image.sif
 > >    ```
 > >    
-> >    You may notice there's a flag being passed to singularity shell (`--contain` - `-c` is the short form and also works). What is this doing? When running a singularity container, you may remember that we highlighted that some key files/directories from the host system are mapped into containers by default when you start them. The configuration in the Docker Singularity container attempts to mount the file `/etc/localtime` into the Singularity container but there is not a timezone configuration present in the Docker Singularity container and this file doesn't exist resulting in an error. `--contain` prevents the default mounting of some key files/directories into the container and prevents this error from occurring. Later in this material, there's an example of how to rectify the issue by creating a timezone configuration in the Docker Singularity container so that the `--contain` switch is no longer needed.
+> >    _If you are using an older version of the Docker Singularity container, you may receive an error about `/etc/localtime` not being found. There are some details of how to work around this in the [Using older versions of the Singularity Docker container]({{ site.baseurl }}{% link _episodes/07-singularity-images-building.md %}#using-older-versions-of-the-singularity-docker-container) section in one of the callouts in the "Building Singularity Images" episode. This does not apply if you're using the v3.7.3 image as described here._
 > >    
 > > 
 > > _Summary / Comments:_
@@ -144,7 +144,7 @@ The [Singularity Docker image](https://quay.io/repository/singularity/singularit
 > > This can be a little cumbersome to work with. However, if you're using Linux or macOS on your host system (or working via [WSL2](https://docs.microsoft.com/en-us/windows/wsl/about) on Windows), you can add a _command alias_ so that running `singularity` at your terminal actually runs the much longer command shown above. E.g. (for bash shells - syntax for other shells varies):
 > > 
 > > ```
-> > alias singularity='docker run --privileged --rm --mount type=bind,source=${PWD},target=/home/singularity quay.io/singularity/singularity:v3.7.3-slim'
+> > alias singularity='docker run --privileged -it --rm --mount type=bind,source=${PWD},target=/home/singularity quay.io/singularity/singularity:v3.7.3-slim'
 > > ```
 > > 
 > > This means you'll only have to type `singularity` at the command line as shown in the examples throughout this section of the material

@@ -4,16 +4,16 @@
 #SBATCH --job-name=<YOUR JOB NAME>
 #SBATCH --time=0:10:0
 #SBATCH --nodes=2
-#SBATCH --tasks-per-node=128
+#SBATCH --tasks-per-node=1
 #SBATCH --cpus-per-task=1
 
 # Replace [budget code] below with your budget code (e.g. t01)
 #SBATCH --partition=standard
-#SBATCH --qos=standard
+#SBATCH --qos=short
 #SBATCH --account=<YOUR ACCOUNT CODE>
 
 # Setup the job environment (this module needs to be loaded before any other modules)
-module load epcc-job-env
+module load cray-mpich-abi
 
 # Set the number of threads to 1
 #   This prevents any threaded system libraries from automatically 
@@ -22,11 +22,13 @@ export OMP_NUM_THREADS=1
 
 # Set the LD_LIBRARY_PATH environment variable within the Singularity container
 # to ensure that it used the correct MPI libraries
-export SINGULARITYENV_LD_LIBRARY_PATH=/opt/cray/pe/mpich/8.0.16/ofi/gnu/9.1/lib-abi-mpich:/usr/lib/x86_64-linux-gnu/libibverbs:/opt/cray/pe/pmi/6.0.7/lib:/opt/cray/libfabric/1.11.0.0.233/lib64:/usr/lib64/host:/.singularity.d/libs
+export SINGULARITYENV_LD_LIBRARY_PATH=/opt/cray/pe/mpich/8.1.4/ofi/gnu/9.1/lib-abi-mpich:/opt/cray/pe/pmi/6.0.10/lib:/opt/cray/libfabric/1.11.0.4.71/lib64:/usr/lib64/host:/usr/lib/x86_64-linux-gnu/libibverbs:/.singularity.d/libs:/opt/cray/pe/gcc-libs
 
-# Set the options for the Singularity executable
-#   This makes sure the locations with Cray Slingshot interconnect libraries are available
-singopts="-B /opt/cray,/usr/lib64:/usr/lib64/host,/usr/lib64/tcl,/var/spool/slurmd/mpi_cray_shasta"
+# Set the BIND options for the Singularity executable.
+# This makes sure Cray Slingshot interconnect libraries are available
+# from inside the container.
+export SINGULARITY_BIND="/opt/cray,/usr/lib64/libibverbs.so.1,/usr/lib64/librdmacm.so.1, /usr/lib64/libnl-3.so.200,/usr/lib64/libnl-route-3.so.200,/usr/lib64/libpals.so.0, /var/spool/slurmd/mpi_cray_shasta,/usr/lib64/libibverbs/libmlx5-rdmav25.so,/etc/libibverbs.d,/opt/gcc"
 
 # Launch the parallel job
-srun --hint=nomultithread --distribution=block:block singularity run $singopts osu_benchmarks.sif collective/osu_allreduce
+srun --hint=nomultithread --distribution=block:block singularity run osu_benchmarks.sif pt2pt/osu_latency
+
