@@ -1,0 +1,29 @@
+FROM ubuntu:20.04
+
+COPY mpich-3.4.3.tar.gz /root/mpich-3.4.3.tar.gz
+COPY osu-micro-benchmarks-5.8.tgz /root/osu-micro-benchmarks-5.8.tgz
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV SINGULARITY_MPICH_DIR=/usr
+ENV OSU_DIR=/usr/local/osu/libexec/osu-micro-benchmarks/mpi
+ENV PATH=${OSU_DIR}:${PATH}
+
+RUN apt-get -y update && apt-get -y install curl build-essential libfabric-dev libibverbs-dev gfortran
+
+RUN cd /root \
+   && tar -zxvf mpich-3.4.3.tar.gz \
+   && cd /root/mpich-3.4.3 \
+   && ./configure --prefix=/usr --with-device=ch4:ofi --disable-fortran \
+   && make -j4 install \
+   && rm -rf /root/mpich-3.4.3 \
+   && rm /root/mpich-3.4.3.tar.gz
+
+RUN cd /root \
+   && tar -zxvf osu-micro-benchmarks-5.8.tgz \
+   && cd /root/osu-micro-benchmarks-5.8 \
+   && ./configure --prefix=/usr/local/osu CC=/usr/bin/mpicc CXX=/usr/bin/mpicxx \
+   && cd mpi \
+   && make -j4 install \
+   && rm -rf /root/osu-micro-benchmarks-5.8 \
+   && rm /root/osu-micro-benchmarks-5.8.tgz
+

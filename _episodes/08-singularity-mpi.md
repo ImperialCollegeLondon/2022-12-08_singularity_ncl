@@ -67,16 +67,16 @@ From: ubuntu:20.04
     cd /root
     tar zxvf mpich-3.4.3.tar.gz && cd mpich-3.4.3
     echo "Configuring and building MPICH..."
-    ./configure --prefix=/usr --with-device=ch4:ofi && make -j2 && make install
+    ./configure --prefix=/usr --with-device=ch4:ofi && make -j8 && make install
     cd /root
     tar zxvf osu-micro-benchmarks-5.8.tgz
     cd osu-micro-benchmarks-5.8/
     echo "Configuring and building OSU Micro-Benchmarks..."
     ./configure --prefix=/usr/local/osu CC=/usr/bin/mpicc CXX=/usr/bin/mpicxx
-    make -j2 && make install
+    make -j6 && make install
 
 %runscript
-    echo "Rank ${PMI_RANK} - About to run: ${OSU_DIR}/$*"
+    echo "Rank ${SLURM_PROCID} - About to run: ${OSU_DIR}/$*"
     exec ${OSU_DIR}/$*
 ~~~
 {: .output}
@@ -93,6 +93,29 @@ A quick overview of what the above definition file is doing:
  - In the `%runscript` section: A runscript is set up that will echo the rank number of the current process and then run the command provided as a command line argument.
 
 _Note that base path of the the executable to run (`$OSU_DIR`) is hardcoded in the run script_. The command line parameter that you provide when running a container instance based on the image is then added to this base path. Example command line parameters include: `startup/osu_hello`, `collective/osu_allgather`, `pt2pt/osu_latency`, `one-sided/osu_put_latency`.
+
+> ## Alternative Docker-based workflow for building Singularity images
+>
+> At the time of writing, if you have an ARM-based laptop (e.g. a recent Apple laptop based on their M1 processor), it is not currently possible to build an image via the Singularity Docker container that you can then run on an x86-based system (such as a remote x86-based cluster).
+>
+> This is likely to be resolved in due course but, in the meantime, an alternative workflow can be used. This involves:
+>
+> - Building a Docker container image with the configuration you'd like to run under Singularity
+> - Pushing the Docker container image to Docker Hub
+> - Pulling the Docker container image on the remote cluster platform and then building a Singularity image from it
+> 
+> We have prepared a Dockerfile equivalent to the Singularity definition file provided above. If this issue affects you, you can download [this Dockerfile]({{site.url}}{{site.baseurl}}/files/Dockerfile-osu-benchmarks) and build an image from it.
+> 
+> _When running the `docker build` command, you will need to add a command line flag `--platform linux/amd64` to ensure that Docker builds an image suitable for running on a different, x86-based platform._
+> 
+> Then, in a shell on the remote cluster platform, run the following command to pull your Docker image from Docker Hub and build a Singularity image from it:
+> 
+> ~~~
+> $ singularity build osu_benchmarks.sif docker://<your_dockerhub_username>/<your_image_name>
+> ~~~
+> {: .language-bash}
+> 
+{: .callout}
 
 > ## Build and test the OSU Micro-Benchmarks image
 >
@@ -152,6 +175,8 @@ We can now try running a 2-process MPI run of a point to point benchmark `osu_la
 
 > ## Undertake a parallel run of the `osu_latency` benchmark (general example)
 >
+> _This is intended to be a general example for platforms not using a job scheduler (i.e. where you can run an MPI job directly from the command line). If you're attending a taught version of this course, take a look at the cluster example below instead._
+>
 > Move the `osu_benchmarks.sif` Singularity image onto the cluster (or other suitable) platform where you're going to undertake your benchmark run.
 > 
 > You should be able to run the benchmark using a command similar to the one shown below. However, if you are running on a cluster, you may need to write and submit a job submission script at this point to initiate running of the benchmark.
@@ -170,7 +195,7 @@ We can now try running a 2-process MPI run of a point to point benchmark `osu_la
 > >~~~
 > > Rank 1 - About to run: /.../mpi/pt2pt/osu_latency
 > > Rank 0 - About to run: /.../mpi/pt2pt/osu_latency
-> > # OSU MPI Latency Test v5.6.2
+> > # OSU MPI Latency Test v5.8
 > > # Size          Latency (us)
 > > 0                       0.38
 > > 1                       0.34
@@ -190,9 +215,9 @@ We can now try running a 2-process MPI run of a point to point benchmark `osu_la
 >
 > It is now necessary to create a `Slurm` job submission script to run the benchmark example.
 >
-> Download this [template script]({{site.url}}{{site.baseurl}}/files/osu_latency.slurm.template) _on the cluster_ and edit it to suit your configuration. (Copy the link and use a tool such as `wget` to download the template)
+> Download this [template script]({{site.url}}{{site.baseurl}}/files/osu_latency.slurm.template) _on the cluster_ and edit it to suit your configuration. (_Copy the link and use a tool such as `wget` to download the template._)
 >
-> You'll need to set your job name and account code.
+> You'll need to set your job name and account code within the template script.
 > 
 > Before you can submit your job, you'll need to move to your Singularity image file to your project directory under `/work/` and run your job from that location.
 >
@@ -210,19 +235,15 @@ We can now try running a 2-process MPI run of a point to point benchmark `osu_la
 > > The following shows an example of the output you should expect to see. You should have latency values shown for message sizes up to 4MB.
 > > 
 > >~~~
-> > INFO:    Convert SIF file to sandbox...
-> > INFO:    Convert SIF file to sandbox...
-> > Rank 1 - About to run: /.../mpi/pt2pt/osu_latency
 > > Rank 0 - About to run: /.../mpi/pt2pt/osu_latency
-> > # OSU MPI Latency Test v5.6.2
+> > Rank 1 - About to run: /.../mpi/pt2pt/osu_latency
+> > # OSU MPI Latency Test v5.8
 > > # Size          Latency (us)
-> > 0                       1.49
-> > 1                       1.50
-> > 2                       1.50
+> > 0                       2.23
+> > 1                       2.22
+> > 2                       2.22
 > > ...
-> > 4194304               915.44
-> > INFO:    Cleaning up image...
-> > INFO:    Cleaning up image...
+> > 4194304               354.06
 > > ~~~
 > > {: .output}
 > {: .solution}
