@@ -43,6 +43,20 @@ You can take a look at Singularity's "[Build a Container](https://apptainer.org/
 > {: .solution}
 {: .challenge}
 
+> ## Using Docker to build Singularity images
+> Another common and convenient approach to building images to use with Singularity is to use Docker
+> on your local system (e.g. laptop) and them convert them to Singularity images on the remote system
+> using Singularity itself. This has a number of potential advantages:
+>
+> - We can reuse our skills from building Docker containers and do not need to learn a different syntax
+> - We do not need to install Singularity ourselves
+> - Getting images on to the remote system can be easier as they can be pulled from Dockerhub
+>
+> If you do not want to share images publicly on Dockerhub to transfer them, you can export images from
+> Docker to a file, copy the file to the remote system and then convert them to Singularity images 
+> directly.
+{: .callout}
+
 ### Creating a Singularity Definition File
 
 A Singularity Definition File is a text file that contains a series of statements that are used to create a container image. In line with the _configuration as code_ approach mentioned above, the definition file can be stored in your code repository alongside your application code and used to create a reproducible image. This means that for a given commit in your repository, the version of the definition file present at that commit can be used to reproduce a container with a known state. It was pointed out earlier in the course, when covering Docker, that this property also applies for Dockerfiles.
