@@ -1,6 +1,6 @@
 ---
 title: "Building Singularity images"
-teaching: 30
+teaching: 50
 exercises: 30
 questions:
 - "How do I create my own Singularity images?"
