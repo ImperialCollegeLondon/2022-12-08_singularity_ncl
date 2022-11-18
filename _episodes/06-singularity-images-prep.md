@@ -35,6 +35,26 @@ There are **three** different options for accessing a suitable environment to un
 
 We'll focus on the first option in this part of the course - _running singularity from within a Docker container_. If you would like to install Singularity directly on your system, see the box below for some further pointers. However, please note that the installation process is an advanced task that is beyond the scope of this course so we won't be covering this.
 
+> ## Apple systems with Arm-based Apple Silicon processors
+>
+> Unfortunately, it is not currently possible to use the Singularity Docker container images to build images for
+> a processor architecture other than the architecture the Docker container is running on. As most HPC systems 
+> use the x86_64 processor architecture, this means that Apple systems with Apple Silicon processors (which have 
+> an Arm64 architecture) are not able to build Singularity images using the Docker Singularity container images
+> which can then be used on most HPC systems.
+>
+> The solution to this issue is to use Docker itself to build the container images - Docker Desktop on Apple Silicon
+> systems *is* able to build container images that can be used on x86_64 architectures - and then use the Singularity
+> functionality we have already seen to convert Docker container images to Singularity container image files.
+>
+> If you have an Apple Silicon device, you can follow through the exercises below using the Singularity Docker container
+> image up until the point of trying to run on the HPC system (and use a pre-built container image file provided by the
+> instructors); or you can replicate the builds using Docker directly through Dockerfiles and use the `--platform linux/amd64`
+> option t `docker build` to generate container images that can be used on the HPC platform. Typically, you would push
+> your built image to DockerHub and then pull the image from DockerHub using Singularity on the HPC platform. Just
+> let an instructor or helper know if you want assistance with trying this approach.
+{: .callout}
+
 > ## Installing Singularity on your local system (optional) \[Advanced task\]
 >
 > If you are running Linux and would like to install Singularity locally on your system, the source code is provided via the [Apptainer project](https://apptainer.org)'s [Singularity repository](https://github.com/apptainer/singularity). See the releases [here](https://github.com/apptainer/singularity/releases/). You will need to install various dependencies on your system and then build Singularity from source code.
