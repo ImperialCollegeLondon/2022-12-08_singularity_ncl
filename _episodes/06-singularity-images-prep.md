@@ -37,22 +37,25 @@ We'll focus on the first option in this part of the course - _running singularit
 
 > ## Apple systems with Arm-based Apple Silicon processors
 >
-> Unfortunately, it is not currently possible to use the Singularity Docker container images to build images for
-> a processor architecture other than the architecture the Docker container is running on. As most HPC systems 
-> use the x86_64 processor architecture, this means that Apple systems with Apple Silicon processors (which have 
-> an Arm64 architecture) are not able to build Singularity images using the Docker Singularity container images
-> which can then be used on most HPC systems.
+> Unfortunately, it is not currently possible to use the Singularity Docker container to build images for
+> a processor architecture that is different to the one you are running the Singularity Docker container
+> on. As most HPC systems use the x86_64 processor architecture, this means that Apple systems with Apple
+> Silicon processors (which have an Arm64 architecture) are not able to build Singularity images using the
+> Docker Singularity container images which can then be used on most HPC systems.
 >
-> The solution to this issue is to use Docker itself to build the container images - Docker Desktop on Apple Silicon
-> systems *is* able to build container images that can be used on x86_64 architectures - and then use the Singularity
-> functionality we have already seen to convert Docker container images to Singularity container image files.
+> The solution to this issue is to use Docker itself to build the container images (i.e. you build a regular
+> Docker container image rather than a Singularity container image) - Docker Desktop on Apple Silicon systems
+> *is* able to build container images that can be used on x86_64 architectures. You then use the Singularity
+> functionality we have already seen to convert Docker container images to Singularity container image files
+> and run them through Singularity.
 >
-> If you have an Apple Silicon device, you can follow through the exercises below using the Singularity Docker container
-> image up until the point of trying to run on the HPC system (and use a pre-built container image file provided by the
-> instructors); or you can replicate the builds using Docker directly through Dockerfiles and use the `--platform linux/amd64`
-> option t `docker build` to generate container images that can be used on the HPC platform. Typically, you would push
-> your built image to DockerHub and then pull the image from DockerHub using Singularity on the HPC platform. Just
-> let an instructor or helper know if you want assistance with trying this approach.
+> If you have an Apple Silicon device, you can follow through the exercises below using the Singularity Docker
+> container image up until the point of trying to run on the HPC system (and then switch to using a pre-built
+> container image file provided by the instructors); or you can replicate the builds using Docker directly
+> through Dockerfiles and use the `--platform linux/amd64` option to `docker build` to generate container
+> images that can be used on the HPC platform. Typically, you would push your built image to DockerHub and
+> then pull the image from DockerHub using Singularity on the HPC platform. Just let an instructor or helper
+> know if you want assistance with trying this approach.
 {: .callout}
 
 > ## Installing Singularity on your local system (optional) \[Advanced task\]
