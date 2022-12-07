@@ -7,12 +7,12 @@
 #SBATCH --tasks-per-node=1
 #SBATCH --cpus-per-task=1
 
-# Replace [budget code] below with your budget code (e.g. t01)
+# Specify the partition, QoS and account code to use for the job
 #SBATCH --partition=standard
 #SBATCH --qos=short
-#SBATCH --account=<YOUR ACCOUNT CODE>
+#SBATCH --account=ta089
 
-# Setup the job environment (this module needs to be loaded before any other modules)
+# Setup the job environment to enable MPI ABI compatibility
 module load cray-mpich-abi
 
 # Set the number of threads to 1
@@ -30,5 +30,5 @@ export SINGULARITYENV_LD_LIBRARY_PATH=/opt/cray/pe/mpich/8.1.4/ofi/gnu/9.1/lib-a
 export SINGULARITY_BIND="/opt/cray,/usr/lib64/libibverbs.so.1,/usr/lib64/librdmacm.so.1, /usr/lib64/libnl-3.so.200,/usr/lib64/libnl-route-3.so.200,/usr/lib64/libpals.so.0, /var/spool/slurmd/mpi_cray_shasta,/usr/lib64/libibverbs/libmlx5-rdmav25.so,/etc/libibverbs.d,/opt/gcc"
 
 # Launch the parallel job
-srun --hint=nomultithread --distribution=block:block singularity run osu_benchmarks.sif pt2pt/osu_latency
+srun --hint=nomultithread --distribution=block:block singularity run osu-benchmarks.sif osu_latency
 
