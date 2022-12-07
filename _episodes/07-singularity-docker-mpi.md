@@ -1,5 +1,5 @@
 ---
-title: "Additional material: Running MPI parallel jobs using Singularity containers"
+title: "Running MPI parallel jobs using Singularity containers"
 teaching: 30
 exercises: 40
 questions:
