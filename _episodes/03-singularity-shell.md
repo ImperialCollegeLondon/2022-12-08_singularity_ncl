@@ -1,7 +1,7 @@
 ---
 title: "Using Singularity containers to run commands"
-teaching: 10
-exercises: 5
+teaching: 15
+exercises: 10
 questions:
 - "How do I run different commands within a container?"
 - "How do I access an interactive shell within a container?"

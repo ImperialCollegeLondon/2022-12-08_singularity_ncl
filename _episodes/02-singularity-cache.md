@@ -1,6 +1,6 @@
 ---
 title: "The Singularity cache"
-teaching: 10
+teaching: 15
 exercises: 0
 questions:
 - "Why does Singularity use a local cache?"

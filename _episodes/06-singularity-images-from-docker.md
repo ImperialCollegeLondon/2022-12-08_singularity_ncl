@@ -1,7 +1,7 @@
 ---
-title: "Preparing to build Singularity images"
-teaching: 15
-exercises: 20
+title: "Building Singularity images"
+teaching: 20
+exercises: 25
 questions:
 - "What environment do I need to build a container image to use with Singularity?"
 objectives:
