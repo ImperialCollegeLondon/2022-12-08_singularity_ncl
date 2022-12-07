@@ -130,7 +130,7 @@ cdo-archer2.sif     edge768x768.pgm  image192x128.pgm	   jsindt			paraver		    p
 
 You can also specify multiple binds to `-B` by separating them by commas (`,`).
 
-An alternative option to binding a directory from the host system into a container is to copy required data into a container image at build time. This is useful when there is some static data required in the image. We cover this later in the section on [building Singularity images]({{ site.baseurl }}{% link _episodes/07-singularity-images-building.md %}).
+An alternative option to binding a directory from the host system into a container is to copy required data into a container image at build time.
 
 ## References
 
