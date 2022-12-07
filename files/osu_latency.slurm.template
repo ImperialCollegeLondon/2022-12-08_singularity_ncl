@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Slurm job options (name, compute nodes, job time)
-#SBATCH --job-name=<YOUR JOB NAME>
+#SBATCH --job-name=osu_latency
 #SBATCH --time=0:10:0
 #SBATCH --nodes=2
 #SBATCH --tasks-per-node=1
