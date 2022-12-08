@@ -59,7 +59,7 @@ Part I of this Singularity material is intended to be undertaken on a remote pla
 _If you're attending a taught version of this course, you will be provided with access details for a remote platform made available to you for use for Part I of the Singularity material. This platform will have the Singularity software pre-installed._
 
 > ## Installing Singularity on your own laptop/desktop
-> If you have a Linux system on which you have administrator access and you would like to install Singularity on this system, some information is provided at the start of [Part II of the Singularity material]({{ page.root }}/06-singularity-images-prep/index.html#installing-singularity-on-your-local-system-optional-advanced-task). Unless you are experienced with building software from source code in a Linux environment, we strongly recommend working on a platform with Singularity pre-installed when undertaking this section of the course.
+> If you have a Linux system on which you have administrator access and you would like to install Singularity on this system, some information is provided at the start of [Part II of the Singularity material]({{ page.root }}/06-singularity-images-from-docker/index.html#installing-singularity-on-your-local-system-optional-advanced-task). Unless you are experienced with building software from source code in a Linux environment, we strongly recommend working on a platform with Singularity pre-installed when undertaking this section of the course.
 > 
 > Later in this material, when building Singularity images, we'll look at running Singularity on your local system through Docker.
 {: .callout}

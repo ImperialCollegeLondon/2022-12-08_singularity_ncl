@@ -83,7 +83,7 @@ docker image build -t alice/ubuntu-python --platform linux/amd64 .
  => => writing image sha256:c58fd754f0e5540b4a9c7768816eea8dcf742bd7bb06a38a37f06390ddc035cb       0.0s 
  => => naming to docker.io/aturnerepcc/ubuntu-python   
 ```
-{; .output}
+{: .output}
 
 Note: if we are on an x86_64 platform (Intel or AMD processor) then the `--platform linux/amd64` flag is not strictly 
 needed in this case. You should check what processor architecture your HPC system has to choose the right
@@ -103,7 +103,7 @@ cfd62b5df445: Pushed
 f4462d5b2da2: Mounted from library/ubuntu 
 latest: digest: sha256:17823c31c6b86f117bf24df4e19a39077ba36a9c6e45010b0a4853de789a245a size: 953
 ```
-{; .output}
+{: .output}
 
 We should now have a Docker container image hosted on Dockerhub with the correct architecture for
 our HPC system. We will now log into the HPC system and pull and run the image using Singularity:
@@ -133,7 +133,7 @@ Storing signatures
 2022/12/07 19:20:04  warn xattr{/tmp/build-temp-818601781/rootfs/usr/local/lib/python3.8} destination filesystem does not support xattrs, further warnings will be suppressed
 INFO:    Creating SIF file...
 ```
-{; .output}
+{: .output}
 
 ```
 remote> singularity run ubuntu-python_latest.sif
@@ -142,7 +142,7 @@ remote> singularity run ubuntu-python_latest.sif
 ```
 Python 3.8.10
 ```
-{; .output}
+{: .output}
 
 > ## Cluster platform configuration for running Singularity containers
 >

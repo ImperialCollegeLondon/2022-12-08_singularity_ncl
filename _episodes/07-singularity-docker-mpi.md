@@ -86,11 +86,12 @@ CMD osu_latency
 A quick overview of what the above Dockerfile is doing:
 
  - The image is built starting from the `ubuntu:20.04` Docker image.
- - `ENV` commands: Set a couple of environment variables that will be available within all containers run from the generated image.
+ - `ENV DEBIAN_FRONTEND` command: An environment variable to tell the Linux OS that commands in this build are non-interactive
  - `RUN` commands:
    + Ubuntu's `apt-get` package manager is used to update the package directory and then install the compilers and other libraries required for the MPICH build.
    + The MPICH distribution .tar.gz file is downloaded, extracted and the configure, build and install steps are run. Note the use of the `--with-device` option to configure MPICH to use the CH4 device to support improved communication performance on a high performance cluster that provides support for this.
    + The OSU Micro-Benchmarks .tgz file is downloaded, extracted and the configure, build and install steps are run to build the benchmark code from source.
+ - `ENV PATH` commands: Add the OSU benchmark binary locations to the PATH so they can be run without specifying the location
  - `CMD`: Sets the default action for the container - runs the `osu_latency` benchmark.
 
 _Note that base path of the the executable to run (`$OSU_DIR`) is hardcoded in the run script_. The command line parameter that you provide when running a container instance based on the image is then added to this base path. Example command line parameters include: `startup/osu_hello`, `collective/osu_allgather`, `pt2pt/osu_latency`, `one-sided/osu_put_latency`.
@@ -99,6 +100,9 @@ _Note that base path of the the executable to run (`$OSU_DIR`) is hardcoded in t
 >
 > Using the above Dockerfile, build a Docker container image for the `linux/amd64` platform
 > named `<your-dockerhub-id>/osu-benchmarks`.
+>
+> Note: this will take a long time to build (sometimes over 1 hour)! (We have a prebuilt version for you to use on ARCHER2 so you
+> can carry on with the course without waiting for the build process to complete.)
 > 
 > Once the image has finished building, push it to Dockerhub.
 > 
@@ -131,9 +135,6 @@ root    && cd /root/mpich-3.4.2     3639.3s
 > > ~~~
 > > {: .output}
 > >
-> > Note: this will take a long time to build (sometimes over 1 hour)! (We have a prebuilt version for you to use on ARCHER2 so you
-> > can carry on with the course without waiting for the build process to complete.)
-> >
 > > Once it has built, you can push to Dockerhub with (again for Dockerhub username `alice`):
 > > 
 > > ~~~
@@ -159,7 +160,7 @@ We can now try running a 2-process MPI run of a point to point benchmark `osu_la
 
 ## Undertake a parallel run of the `osu_latency` benchmark
 
-_[ARCHER2](https://www.archer2.ac.uk/), the UK National Supercomputing Service, uses the [Slurm workload manager](https://www.schedmd.com/) to manage the submission and running of jobs. We provide you with a template Slurm job submission script in this section for running a parallel job via your Singularity container on ARCHER2.
+[ARCHER2](https://www.archer2.ac.uk/), the UK National Supercomputing Service, uses the [Slurm workload manager](https://www.schedmd.com/) to manage the submission and running of jobs. We provide you with a template Slurm job submission script in this section for running a parallel job via your Singularity container on ARCHER2.
 
 _This version of the exercise, for undertaking a parallel run of the osu_latency benchmark with your Singularity container that contains an MPI build, is specific to this run of the course._
 
@@ -230,6 +231,56 @@ The following shows an example of the output you should expect to see. You shoul
 This has demonstrated that we can successfully run a parallel MPI executable from within a Singularity container. However, depending on the configuration of the target cluster platform, it's possible that the two processes will have run on the same physical node - if so, this is not testing the performance of the interconnects between nodes.
 
 You could now try running a larger-scale test. You can also try running a benchmark that uses multiple processes, for example try `osu_allreduce`.
+
+### Using the host MPI with the container
+
+Lets take a closer look at the job submission script for the OSU benchmarks:
+
+```
+#!/bin/bash
+
+# Slurm job options (name, compute nodes, job time)
+#SBATCH --job-name=osu_latency
+#SBATCH --time=0:10:0
+#SBATCH --nodes=2
+#SBATCH --tasks-per-node=1
+#SBATCH --cpus-per-task=1
+
+# Specify the partition, QoS and account code to use for the job
+#SBATCH --partition=standard
+#SBATCH --qos=short
+#SBATCH --account=ta089
+
+# Setup the job environment to enable MPI ABI compatibility
+module load cray-mpich-abi
+
+# Set the number of threads to 1
+#   This prevents any threaded system libraries from automatically 
+#   using threading.
+export OMP_NUM_THREADS=1
+
+# Set the LD_LIBRARY_PATH environment variable within the Singularity container
+# to ensure that it used the correct MPI libraries
+export SINGULARITYENV_LD_LIBRARY_PATH=/opt/cray/pe/mpich/8.1.4/ofi/gnu/9.1/lib-abi-mpich:/opt/cray/pe/pmi/6.0.10/lib:/opt/cray/libfabric/1.11.0.4.71/lib64:/usr/lib64/host:/usr/lib/x86_64-linux-gnu/libibverbs:/.singularity.d/libs:/opt/cray/pe/gcc-libs
+
+# Set the BIND options for the Singularity executable.
+# This makes sure Cray Slingshot interconnect libraries are available
+# from inside the container.
+export SINGULARITY_BIND="/opt/cray,/usr/lib64/libibverbs.so.1,/usr/lib64/librdmacm.so.1,/usr/lib64/libnl-3.so.200,/usr/lib64/libnl-route-3.so.200,/usr/lib64/libpals.so.0,/var/spool/slurmd/mpi_cray_shasta,/usr/lib64/libibverbs/libmlx5-rdmav25.so,/etc/libibverbs.d,/opt/gcc"
+
+# Launch the parallel job
+srun --hint=nomultithread --distribution=block:block singularity run osu-benchmarks.sif osu_latency
+
+```
+{: .output}
+
+There are three key lines in here that are required to make the MPI in the Singularity container work with the host MPI on ARCHER2 itself:
+
+`module load cray-mpich-abi` - This loads a special version of the Cray MPICH library on ARCHER2 that contains the ABI compatibility layer to allow it to interact with other compiled versions of MPICH (such as the one in our container image).
+
+`export SINGULARITYENV_LD_LIBRARY_PATH` - This line sets the `LD_LIBRARY_PATH` environment variable *in the Singularity container` and tells the OSU benchmark programs where to find all the libraries required to make them work with MPI on the ARCHER2 host system,
+
+`export SINGULARITY_BIND` - This line bind mounts the specified paths from the ARCHER2 host system into our Singularity container image at runtime. This makes the software libraries available in the container that are required for MPI from the container with the host MPI installation. (This could also have been specified using the `-B` option to the Singularity command.)
 
 > ## [Advanced] Investigate performance when using a container image built on a local system and run on a cluster
 > 
