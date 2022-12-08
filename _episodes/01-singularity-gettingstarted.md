@@ -44,15 +44,21 @@ Working with Singularity containers:
 
 ## What is Singularity?
 
-[Singularity](https://sylabs.io/singularity/) is another container platform. In some ways it appears similar to Docker from a user perspective, but in others, particularly in the system's architecture, it is fundamentally different. These differences mean that Singularity is particularly well-suited to running on distributed, High Performance Computing (HPC) infrastructure, as well as a Linux laptop or desktop! 
+[Singularity](https://sylabs.io/singularity/) is another container platform. In some ways it appears similar to Docker from a user perspective, but in others, particularly in the system's architecture, it is fundamentally different. These differences mean that Singularity is particularly well-suited to running on distributed, High Performance Computing (HPC) infrastructure.
 
 System administrators will not, generally, install Docker on shared computing platforms such as lab desktops, research clusters or HPC platforms because the design of Docker presents potential security issues for shared platforms with multiple users. Singularity, on the other hand, can be run by end-users entirely within "user space", that is, no special administrative privileges need to be assigned to a user in order for them to run and interact with containers on a platform where Singularity has been installed.
 
 ## Getting started with Singularity
 
-#### A little history...
+### A little history...
 
-Singularity is open source and was initially developed within the research community. Some months ago, the project was "forked" something that is not uncommon within the open source software community, with the software effectively splitting into two projects going in different directions. The fork is being developed by a commercial entity, [Sylabs.io](https://sylabs.io/) who provide both the free, open source [SingularityCE (Community Edition)](https://sylabs.io/singularity) and Pro/Enterprise editions of the software. The original open source Singularity project has recently been [renamed to Apptainer](https://apptainer.org/news/community-announcement-20211130/) and has moved into the Linux Foundation. At the time of writing, Apptainer is still working towards an initial release so, for now, the latest software releases remain under the "Singularity" name. We will generally be working with versions of Singularity released before the fork as part of this course so these changes are not directly relevant. However, it is useful to be aware of this history and that you may see both Singularity and Apptainer being used within the research community over the coming months and years. 
+Singularity is open source and was initially developed within the research community. Some months ago, the project was "forked" something that is not uncommon within the open source software community, with the software effectively splitting into two projects going in different directions. The fork is being developed by a commercial entity, [Sylabs.io](https://sylabs.io/) who provide both the free, open source [SingularityCE (Community Edition)](https://sylabs.io/singularity) and Pro/Enterprise editions of the software. The original open source Singularity project has recently been [renamed to Apptainer](https://apptainer.org/news/community-announcement-20211130/) and has moved into the Linux Foundation. At the time of writing, Apptainer has recently made their initial release available but this has not yet propagated to many HPC systems. We will generally be working with versions of Singularity released before the fork as part of this course so these changes are not directly relevant. However, it is useful to be aware of this history and that you may see both Singularity and Apptainer being used within the research community over the coming months and years. 
+
+> ## Container technologies on HPC
+>
+> Singularity/Apptainer are not the only container technologies used on HPC systems - you may also see other container technologies used on HPC platforms you have access to (e.g. Podman, CharlieCloud, Sarus). Singularity/Apptainer are, currently, the most widespread technolgies available on HPC systems. However, many of these technologies work ina similar way for users so what you learn here will help you if you need to use these technologies. Furthermore, all of these technologies provide a way to convert Docker container images to their format as we do with Singularity in this lesson.
+>
+{: .callout}
 
 Part I of this Singularity material is intended to be undertaken on a remote platform where Singularity has been pre-installed. 
 
@@ -72,7 +78,7 @@ Sign in to the remote platform, with Singularity installed, that you've been pro
 > $ module load singularity
 > ~~~
 > {: .language-bash}
-> before you can use the `singularity` command on the system.
+> before you can use the `singularity` command on the system. Note: this is not needed on ARCHER2.
 {: .callout}
 
 ~~~
